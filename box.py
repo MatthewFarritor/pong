@@ -1,3 +1,4 @@
+import os
 import pygame
 import random  
 pygame.init()
@@ -12,6 +13,12 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 PADDLE_WIDTH, PADDLE_HEIGHT = 20, 100
+
+OUTPUT_FOLDER = 'Frames'
+if not os.path.exists(OUTPUT_FOLDER):
+    os.makedirs(OUTPUT_FOLDER)
+
+frame_count = 0
 
 class Paddle:
     COLOR = WHITE
@@ -41,6 +48,7 @@ def draw(win, paddles):
     pygame.display.update()
 
 def main():
+    frame_count = 0
     run = True
     clock = pygame.time.Clock()
 
@@ -54,11 +62,14 @@ def main():
     direction = random.choice(['up', 'down', 'none'])
     is_moving = False        
 
-    print(f"Initial delay: {delay} ms")
 
     while run:
         dt = clock.tick(FPS)  
         draw(WIN, [left_paddle])
+
+        frame_filename = os.path.join(OUTPUT_FOLDER, f'frame_{frame_count:05}.png')    
+        pygame.image.save(WIN, frame_filename)
+        frame_count += 1    
 
         if not is_moving:
             elapsed_time += dt
@@ -67,7 +78,7 @@ def main():
                 is_moving = True
                 distance_moved = 0  
                 direction = random.choice(['up', 'down', 'none'])
-                print(f"Starting movement: {direction}")
+            
         else:
             
             if distance_moved < movement_distance:
@@ -79,7 +90,6 @@ def main():
                     left_paddle.move(up=False)
                     distance_moved += left_paddle.VEL
                 else:
-                    print("Movement blocked or direction is 'none'")
                     
                     is_moving = False
                     elapsed_time = 0
@@ -89,7 +99,6 @@ def main():
                 is_moving = False
                 elapsed_time = 0  
                 delay = random.choice([1000, 2000])  
-                print(f"Movement complete. Next delay: {delay} ms")
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
